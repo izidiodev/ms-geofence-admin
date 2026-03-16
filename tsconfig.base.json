@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false,
+    "baseUrl": ".",
+    "paths": {
+      "@user/*": ["src/modules/user/*"],
+      "@type/*": ["src/modules/type/*"],
+      "@campaign/*": ["src/modules/campaign/*"],
+      "@auth/*": ["src/modules/auth/*"],
+      "@shared/*": ["src/shared/*"]
+    }
+  }
+}
