@@ -104,3 +104,5 @@ Não é permitido dois itens do mesmo tipo na mesma campanha (409 se repetir ent
 Listagens retornam só o resumo; **GET /api/campaigns/:id** retorna `enter`, `dwell` e `exit` (`null` até serem cadastrados).
 
 **Contador `delivery_count`:** em cada resposta de **GET /api/campaigns/available**, o contador da campanha é incrementado no banco (uma vez por campanha retornada na página). O JSON já traz o valor **após** o incremento. Use **GET /api/campaigns** (admin) ou **GET /api/campaigns/:id** para ver o total acumulado no painel.
+
+**`search` em `/available`:** filtra por **`city_uf` com igualdade exata** (após normalizar: trim, minúsculas, sem acento). O app deve enviar o **mesmo texto** cadastrado em `city_uf` (ex.: `São Paulo/SP` ≠ `São Bernardo do Campo/SP`), para não misturar geofences entre cidades. Sem `search`, retorna campanhas ativas de todas as cidades (paginado).

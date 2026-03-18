@@ -156,19 +156,16 @@ export class CampaignRepository implements ICampaignRepository {
       params.enabled_filter = filters.enabled;
       qb.andWhere('campaign.enabled = :enabled_filter');
     }
+    /**
+     * /available: cidade deve bater exatamente com city_uf (normalizado), para não
+     * devolver geofences de São Paulo quando o app pede São Bernardo, etc.
+     */
     if (filters?.search && filters.search.trim()) {
-      const searchTerm = `%${filters.search.trim()}%`;
-      params.searchTerm = searchTerm;
-      const searchIn: SearchInFilter = filters.search_in ?? 'both';
-      const nameOnly = searchIn === 'name';
-      const cityUfOnly = searchIn === 'city_uf';
-      const searchCondition =
-        nameOnly
-          ? 'unaccent(campaign.name) ILIKE unaccent(:searchTerm)'
-          : cityUfOnly
-            ? "unaccent(COALESCE(campaign.city_uf, '')) ILIKE unaccent(:searchTerm)"
-            : "(unaccent(campaign.name) ILIKE unaccent(:searchTerm) OR unaccent(COALESCE(campaign.city_uf, '')) ILIKE unaccent(:searchTerm))";
-      qb.andWhere(searchCondition);
+      params.searchRaw = filters.search.trim();
+      qb.andWhere(
+        "lower(trim(unaccent(COALESCE(campaign.city_uf, '')))) = lower(trim(unaccent(:searchRaw)))"
+      );
+      qb.andWhere('campaign.city_uf IS NOT NULL');
     }
 
     qb.setParameters(params);

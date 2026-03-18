@@ -14,8 +14,8 @@ describe('CampaignRepository', () => {
     jest.restoreAllMocks();
   });
 
-  describe('findAvailablePaginated com search (nome ou city_uf)', () => {
-    it('deve chamar setParameters com searchTerm quando filter.search for informado', async () => {
+  describe('findAvailablePaginated — search = city_uf exato', () => {
+    it('deve usar searchRaw com valor literal (igualdade em city_uf)', async () => {
       const setParameters = jest.fn();
       const getManyAndCount = jest.fn().mockResolvedValue([[], 0]);
 
@@ -41,15 +41,18 @@ describe('CampaignRepository', () => {
       });
 
       const repo = new CampaignRepository();
-      await repo.findAvailablePaginated(1, 10, { search: 'Barreiras', onlyActive: true });
+      await repo.findAvailablePaginated(1, 10, {
+        search: 'São Paulo/SP',
+        onlyActive: true,
+      });
 
       expect(setParameters).toHaveBeenCalled();
       const params = setParameters.mock.calls[0][0];
-      expect(params).toHaveProperty('searchTerm', '%Barreiras%');
+      expect(params).toHaveProperty('searchRaw', 'São Paulo/SP');
       expect(getManyAndCount).toHaveBeenCalled();
     });
 
-    it('deve incluir condição de search na query (andWhere com ILIKE em name e city_uf)', async () => {
+    it('deve aplicar igualdade normalizada em city_uf e exigir city_uf preenchido', async () => {
       const andWhereCalls: string[] = [];
       const mockQb = {
         where: jest.fn().mockReturnThis(),
@@ -76,14 +79,10 @@ describe('CampaignRepository', () => {
       });
 
       const repo = new CampaignRepository();
-      await repo.findAvailablePaginated(1, 10, { search: 'Barreiras', onlyActive: true });
+      await repo.findAvailablePaginated(1, 10, { search: 'São Bernardo/SP', onlyActive: true });
 
-      const searchCondition = andWhereCalls.find(
-        (c) => c.includes('searchTerm') && (c.includes('name') || c.includes('city_uf'))
-      );
-      expect(searchCondition).toBeDefined();
-      expect(searchCondition).toMatch(/unaccent.*ILIKE.*searchTerm/);
-      expect(searchCondition).toMatch(/city_uf|name/);
+      expect(andWhereCalls.some((c) => c.includes('searchRaw') && c.includes('='))).toBe(true);
+      expect(andWhereCalls.some((c) => c.includes('city_uf IS NOT NULL'))).toBe(true);
     });
   });
 
