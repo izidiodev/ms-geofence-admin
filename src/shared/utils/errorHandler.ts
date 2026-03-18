@@ -22,7 +22,15 @@ export class ErrorHandler {
       handler: (res, message) => ApiResponse.conflict(res, message),
     },
     {
-      match: (message) => message.includes('Grupo de campanhas incompleto'),
+      match: (message) =>
+        message.includes('Grupo de campanhas incompleto') ||
+        message.includes('Campanha sem itens completos'),
+      handler: (res, message) => ApiResponse.badRequest(res, message),
+    },
+    {
+      match: (message) =>
+        message.includes('type_id deve ser do tipo enter') ||
+        message.includes('Tipo do item inválido'),
       handler: (res, message) => ApiResponse.badRequest(res, message),
     },
   ];

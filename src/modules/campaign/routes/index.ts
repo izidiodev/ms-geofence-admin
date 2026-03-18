@@ -14,9 +14,10 @@ router.get('/available', controller.findAvailable);
 router.use(authMiddleware);
 
 router.get('/', controller.findAll);
-router.get('/group/:groupId', controller.findByGroupId);
-router.get('/:id', controller.findById);
+router.get('/delivery-stats', controller.getDeliveryStats);
 router.post('/', controller.create);
+router.post('/:id/items', controller.addItem);
+router.get('/:id', controller.findById);
 router.put('/:id', controller.update);
 router.delete('/:id', controller.delete);
 

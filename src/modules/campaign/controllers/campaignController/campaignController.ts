@@ -1,11 +1,7 @@
 import { Request, Response } from 'express';
 import { ICampaignService } from '@campaign/services/campaignService/ICampaignService.js';
 import { CampaignValidation } from '@campaign/validations/campaignValidation.js';
-import {
-  CreateCampaignDTO,
-  CreateCampaignTripletDTO,
-  UpdateCampaignDTO,
-} from '@campaign/models/campaign.js';
+import { CreateCampaignDTO, ItemCampaignInput, UpdateCampaignDTO } from '@campaign/models/campaign.js';
 import { CampaignListFilters } from '@campaign/repositories/campaignRepository/ICampaignRepository.js';
 import { AvailableFilters } from '@campaign/services/campaignService/ICampaignService.js';
 import { ApiResponse } from '@shared/utils/apiResponse.js';
@@ -113,6 +109,20 @@ export class CampaignController {
     }
   };
 
+  getDeliveryStats = async (
+    req: Request<object, object, object, { limit?: string }>,
+    res: Response
+  ): Promise<void> => {
+    try {
+      const raw = parseInt(req.query.limit ?? '10', 10);
+      const limit = Number.isNaN(raw) ? 10 : Math.min(10, Math.max(1, raw));
+      const items = await this.service.getTopDeliveryStats(limit);
+      ApiResponse.success({ res, data: { items } });
+    } catch (error) {
+      ErrorHandler.handle(res, error);
+    }
+  };
+
   findById = async (req: Request<{ id: string }>, res: Response): Promise<void> => {
     try {
       const { id } = req.params;
@@ -130,54 +140,37 @@ export class CampaignController {
 
   create = async (req: Request, res: Response): Promise<void> => {
     try {
-      const data = req.body as CreateCampaignTripletDTO | CreateCampaignDTO;
-      const isTriplet =
-        data &&
-        typeof data === 'object' &&
-        'enter' in data &&
-        'dwell' in data &&
-        'exit' in data &&
-        typeof (data as CreateCampaignTripletDTO).enter === 'object' &&
-        typeof (data as CreateCampaignTripletDTO).dwell === 'object' &&
-        typeof (data as CreateCampaignTripletDTO).exit === 'object';
-
-      if (isTriplet) {
-        const triplet = data as CreateCampaignTripletDTO;
-        const validationErrors = CampaignValidation.validateCreateTriplet(triplet);
-        if (validationErrors.length > 0) {
-          ApiResponse.validationError({ res, errors: validationErrors });
-          return;
-        }
-        const result = await this.service.createTriplet(triplet);
-        ApiResponse.created(res, result, 'Campanhas (entrada, permanência e saída) criadas com sucesso');
-      } else {
-        const single = data as CreateCampaignDTO;
-        const validationErrors = CampaignValidation.validateCreate(single);
-        if (validationErrors.length > 0) {
-          ApiResponse.validationError({ res, errors: validationErrors });
-          return;
-        }
-        const result = await this.service.createSingle(single);
-        ApiResponse.created(res, result, 'Campanha criada com sucesso');
+      const data = req.body as CreateCampaignDTO;
+      const validationErrors = CampaignValidation.validateCreateCampaign(data ?? ({} as CreateCampaignDTO));
+      if (validationErrors.length > 0) {
+        ApiResponse.validationError({ res, errors: validationErrors });
+        return;
       }
+      const result = await this.service.create(data);
+      ApiResponse.created(res, result, 'Campanha criada com sucesso');
     } catch (error) {
       ErrorHandler.handle(res, error);
     }
   };
 
-  findByGroupId = async (
-    req: Request<{ groupId: string }>,
-    res: Response
-  ): Promise<void> => {
+  addItem = async (req: Request<{ id: string }>, res: Response): Promise<void> => {
     try {
-      const { groupId } = req.params;
-      const idError = CampaignValidation.validateUUID(groupId);
+      const { id } = req.params;
+      const idError = CampaignValidation.validateUUID(id);
       if (idError) {
         ApiResponse.badRequest(res, idError);
         return;
       }
-      const result = await this.service.findByGroupId(groupId);
-      ApiResponse.success({ res, data: result });
+      const body = req.body as ItemCampaignInput;
+      const validationErrors = CampaignValidation.validateCampaignItemBody(
+        body ?? ({} as ItemCampaignInput)
+      );
+      if (validationErrors.length > 0) {
+        ApiResponse.validationError({ res, errors: validationErrors });
+        return;
+      }
+      const item = await this.service.addCampaignItem(id, body);
+      ApiResponse.created(res, item, 'Item da campanha criado com sucesso');
     } catch (error) {
       ErrorHandler.handle(res, error);
     }
