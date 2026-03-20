@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import 'reflect-metadata';
 import express from 'express';
-import cors from 'cors';
+import cors, { type CorsOptions } from 'cors';
 import { registerAllModules } from './shared/container/modules.js';
 import { AppDataSource } from './shared/infra/database/data-source.js';
 
@@ -9,9 +9,29 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const isDev = process.env.NODE_ENV !== 'production';
 
-if (isDev) {
-  app.use(cors({ origin: true, credentials: true }));
-}
+/** Produção: origens explícitas (evita refletir qualquer Origin). Dev: qualquer origem. */
+const defaultProdOrigins = ['https://geofence-admin-dashboard.vercel.app'];
+const fromEnv = process.env.CORS_ORIGINS?.split(',').map((o) => o.trim()).filter(Boolean);
+const prodAllowedOrigins = fromEnv?.length ? fromEnv : defaultProdOrigins;
+
+const corsOptions: CorsOptions = isDev
+  ? { origin: true, credentials: true }
+  : {
+      credentials: true,
+      origin(origin, callback) {
+        if (!origin) {
+          callback(null, true);
+          return;
+        }
+        if (prodAllowedOrigins.includes(origin)) {
+          callback(null, true);
+          return;
+        }
+        callback(null, false);
+      },
+    };
+
+app.use(cors(corsOptions));
 
 app.use(express.json());
 
