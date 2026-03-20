@@ -26,6 +26,8 @@ yarn migration:run
 yarn seed:run
 ```
 
+**TypeORM:** entidades e migrations são listadas explicitamente em `src/shared/infra/database/register-entities.ts` e `register-migrations.ts` (sem glob `src/` vs `dist/`, compatível com produção). Ao criar **nova entidade** ou **nova migration**, importe e adicione ao array correspondente.
+
 ## Desenvolvimento
 
 ```bash
