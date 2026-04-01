@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import {
   Campaign,
   CampaignDeliveryStatsItem,
@@ -204,6 +204,19 @@ export class CampaignRepository implements ICampaignRepository {
   async findById(id: string): Promise<Campaign | null> {
     const e = await this.repository.findOneBy({ id });
     return e ? toCampaign(e) : null;
+  }
+
+  async findItemsByCampaignIds(
+    campaignIds: string[]
+  ): Promise<Array<ItemCampaign & { type_name: string }>> {
+    if (campaignIds.length === 0) return [];
+    const rows = await this.itemRepository.find({
+      where: { campaign_id: In(campaignIds) },
+      relations: ['type'],
+    });
+    return rows.map((row) =>
+      toItem(row, (row as ItemCampaignEntity & { type?: { name: string } }).type?.name ?? '')
+    );
   }
 
   async findByIdWithItems(id: string): Promise<CampaignWithItems | null> {

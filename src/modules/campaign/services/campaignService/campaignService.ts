@@ -11,6 +11,7 @@ import {
   CampaignSummaryResponse,
   CampaignDetailResponse,
   PaginatedCampaignsResult,
+  PaginatedAvailableCampaignsResult,
 } from '@campaign/models/campaign.js';
 import { CampaignListFilters } from '@campaign/repositories/campaignRepository/ICampaignRepository.js';
 
@@ -81,7 +82,7 @@ export class CampaignService implements ICampaignService {
     page: number,
     limit: number,
     filters?: AvailableFilters
-  ): Promise<PaginatedCampaignsResult> {
+  ): Promise<PaginatedAvailableCampaignsResult> {
     const { data, total } = await this.repository.findAvailablePaginated(page, limit, {
       search: filters?.search,
       search_in: filters?.search_in,
@@ -90,8 +91,20 @@ export class CampaignService implements ICampaignService {
       onlyActive: true,
     });
     const totalPages = Math.ceil(total / limit) || 1;
+    const ids = data.map((c) => c.id);
+    const allItems = await this.repository.findItemsByCampaignIds(ids);
+    const byCampaign = new Map<string, Array<ItemCampaign & { type_name: string }>>();
+    for (const row of allItems) {
+      const list = byCampaign.get(row.campaign_id) ?? [];
+      list.push(row);
+      byCampaign.set(row.campaign_id, list);
+    }
     return {
-      items: data.map(toSummary),
+      items: data.map((c) => {
+        const geoItems = byCampaign.get(c.id) ?? [];
+        const { enter, dwell, exit } = itemsToEnterDwellExitOptional(geoItems);
+        return { ...toSummary(c), enter, dwell, exit };
+      }),
       total,
       page,
       limit,

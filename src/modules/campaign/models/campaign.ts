@@ -92,6 +92,14 @@ export interface PaginatedCampaignsResult {
   totalPages: number;
 }
 
+export interface PaginatedAvailableCampaignsResult {
+  items: CampaignDetailResponse[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 /** Item mínimo para gráfico: top campanhas por delivery_count */
 export interface CampaignDeliveryStatsItem {
   id: string;

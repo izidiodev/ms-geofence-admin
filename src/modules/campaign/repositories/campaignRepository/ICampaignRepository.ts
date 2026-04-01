@@ -42,6 +42,9 @@ export interface ICampaignRepository {
   ): Promise<{ data: Campaign[]; total: number }>;
   findTopByDeliveryCount(limit: number): Promise<CampaignDeliveryStatsItem[]>;
   findById(id: string): Promise<Campaign | null>;
+  findItemsByCampaignIds(
+    campaignIds: string[]
+  ): Promise<Array<ItemCampaign & { type_name: string }>>;
   findByIdWithItems(id: string): Promise<CampaignWithItems | null>;
   createCampaign(data: CreateCampaignDTO): Promise<Campaign>;
   findTypeById(typeId: string): Promise<{ id: string; name: string } | null>;

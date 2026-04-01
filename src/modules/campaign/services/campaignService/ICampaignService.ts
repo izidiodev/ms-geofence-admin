@@ -7,6 +7,7 @@ import {
   CampaignDeliveryStatsItem,
   ItemCampaignResponse,
   PaginatedCampaignsResult,
+  PaginatedAvailableCampaignsResult,
 } from '@campaign/models/campaign.js';
 import { CampaignListFilters } from '@campaign/repositories/campaignRepository/ICampaignRepository.js';
 
@@ -27,7 +28,7 @@ export interface ICampaignService {
     page: number,
     limit: number,
     filters?: AvailableFilters
-  ): Promise<PaginatedCampaignsResult>;
+  ): Promise<PaginatedAvailableCampaignsResult>;
   getTopDeliveryStats(limit?: number): Promise<CampaignDeliveryStatsItem[]>;
   findById(id: string): Promise<CampaignDetailResponse>;
   create(data: CreateCampaignDTO): Promise<CampaignSummaryResponse>;
