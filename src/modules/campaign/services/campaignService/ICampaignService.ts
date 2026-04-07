@@ -12,8 +12,8 @@ import {
 import { CampaignListFilters } from '@campaign/repositories/campaignRepository/ICampaignRepository.js';
 
 export interface AvailableFilters {
-  search?: string;
-  search_in?: 'name' | 'city_uf' | 'both';
+  city?: string;
+  uf?: string;
   is_deleted?: boolean;
   enabled?: boolean;
 }

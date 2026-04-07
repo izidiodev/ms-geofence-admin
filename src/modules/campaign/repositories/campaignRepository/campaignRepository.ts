@@ -31,7 +31,8 @@ function toCampaign(e: CampaignEntity, deliveryCountOverride?: number): Campaign
     id: e.id,
     name: e.name,
     exp_date: e.exp_date,
-    city_uf: e.city_uf,
+    city: e.city,
+    uf: e.uf,
     enabled: e.enabled,
     created_at: e.created_at,
     updated_at: e.updated_at,
@@ -81,13 +82,13 @@ export class CampaignRepository implements ICampaignRepository {
       const search = `%${filters.search.trim()}%`;
       const searchIn: SearchInFilter = filters.search_in ?? 'both';
       const nameOnly = searchIn === 'name';
-      const cityUfOnly = searchIn === 'city_uf';
+      const cityOnly = searchIn === 'city';
       const searchCondition =
         nameOnly
           ? 'unaccent(campaign.name) ILIKE unaccent(:search)'
-          : cityUfOnly
-            ? 'unaccent(COALESCE(campaign.city_uf, \'\')) ILIKE unaccent(:search)'
-            : '(unaccent(campaign.name) ILIKE unaccent(:search) OR unaccent(COALESCE(campaign.city_uf, \'\')) ILIKE unaccent(:search))';
+          : cityOnly
+            ? 'unaccent(COALESCE(campaign.city, \'\')) ILIKE unaccent(:search)'
+            : '(unaccent(campaign.name) ILIKE unaccent(:search) OR unaccent(COALESCE(campaign.city, \'\')) ILIKE unaccent(:search) OR unaccent(COALESCE(campaign.uf, \'\')) ILIKE unaccent(:search))';
       const qb = this.repository
         .createQueryBuilder('campaign')
         .where(searchCondition, { search })
@@ -157,15 +158,18 @@ export class CampaignRepository implements ICampaignRepository {
       qb.andWhere('campaign.enabled = :enabled_filter');
     }
     /**
-     * /available: cidade deve bater exatamente com city_uf (normalizado), para não
-     * devolver geofences de São Paulo quando o app pede São Bernardo, etc.
+     * /available: cidade + UF com igualdade exata (normalizado), para distinguir
+     * homônimos (ex.: Barreiras/BA vs Barreiras/PI).
      */
-    if (filters?.search && filters.search.trim()) {
-      params.searchRaw = filters.search.trim();
+    if (filters?.city?.trim() && filters?.uf?.trim()) {
+      params.cityRaw = filters.city.trim();
+      params.ufRaw = filters.uf.trim();
       qb.andWhere(
-        "lower(trim(unaccent(COALESCE(campaign.city_uf, '')))) = lower(trim(unaccent(:searchRaw)))"
+        "lower(trim(unaccent(COALESCE(campaign.city, '')))) = lower(trim(unaccent(CAST(:cityRaw AS text))))"
       );
-      qb.andWhere('campaign.city_uf IS NOT NULL');
+      qb.andWhere(
+        "lower(trim(unaccent(COALESCE(campaign.uf, '')))) = lower(trim(unaccent(CAST(:ufRaw AS text))))"
+      );
     }
 
     qb.setParameters(params);
@@ -235,12 +239,14 @@ export class CampaignRepository implements ICampaignRepository {
   async createCampaign(data: CreateCampaignDTO): Promise<Campaign> {
     const campaignId = randomUUID();
     const expDate = data.exp_date ? new Date(data.exp_date) : null;
-    const cityUf = data.city_uf?.trim() ?? null;
+    const city = data.city!.trim();
+    const uf = data.uf!.trim().toUpperCase();
     await this.repository.insert({
       id: campaignId,
       name: data.name.trim(),
       exp_date: expDate,
-      city_uf: cityUf,
+      city,
+      uf,
       enabled: data.enabled ?? true,
       is_deleted: false,
       delivery_count: 0,
@@ -317,7 +323,8 @@ export class CampaignRepository implements ICampaignRepository {
     if (data.exp_date !== undefined) {
       campUpdate.exp_date = data.exp_date ? new Date(data.exp_date) : null;
     }
-    if (data.city_uf !== undefined) campUpdate.city_uf = data.city_uf?.trim() ?? null;
+    if (data.city !== undefined) campUpdate.city = data.city.trim();
+    if (data.uf !== undefined) campUpdate.uf = data.uf.trim().toUpperCase();
     if (data.enabled !== undefined) campUpdate.enabled = data.enabled;
     if (Object.keys(campUpdate).length > 0) {
       await this.repository.update(id, campUpdate);

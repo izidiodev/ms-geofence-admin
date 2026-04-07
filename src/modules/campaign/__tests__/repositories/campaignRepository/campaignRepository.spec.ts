@@ -14,8 +14,8 @@ describe('CampaignRepository', () => {
     jest.restoreAllMocks();
   });
 
-  describe('findAvailablePaginated — search = city_uf exato', () => {
-    it('deve usar searchRaw com valor literal (igualdade em city_uf)', async () => {
+  describe('findAvailablePaginated — city + uf exatos', () => {
+    it('deve usar cityRaw e ufRaw nos parâmetros', async () => {
       const setParameters = jest.fn();
       const getManyAndCount = jest.fn().mockResolvedValue([[], 0]);
 
@@ -42,30 +42,38 @@ describe('CampaignRepository', () => {
 
       const repo = new CampaignRepository();
       await repo.findAvailablePaginated(1, 10, {
-        search: 'São Paulo/SP',
+        city: 'São Paulo',
+        uf: 'SP',
         onlyActive: true,
       });
 
       expect(setParameters).toHaveBeenCalled();
       const params = setParameters.mock.calls[0][0];
-      expect(params).toHaveProperty('searchRaw', 'São Paulo/SP');
+      expect(params).toMatchObject({ cityRaw: 'São Paulo', ufRaw: 'SP' });
       expect(getManyAndCount).toHaveBeenCalled();
     });
 
-    it('deve aplicar igualdade normalizada em city_uf e exigir city_uf preenchido', async () => {
+    it('deve aplicar igualdade normalizada em city e uf', async () => {
       const andWhereCalls: string[] = [];
-      const mockQb = {
-        where: jest.fn().mockReturnThis(),
-        andWhere: jest.fn((condition: string) => {
-          andWhereCalls.push(condition);
-          return mockQb;
-        }),
-        orderBy: jest.fn().mockReturnThis(),
-        skip: jest.fn().mockReturnThis(),
-        take: jest.fn().mockReturnThis(),
-        setParameters: jest.fn().mockReturnThis(),
-        getManyAndCount: jest.fn().mockResolvedValue([[], 0]),
+      const mockQb: Record<string, jest.Mock> = {
+        where: jest.fn(),
+        andWhere: jest.fn(),
+        orderBy: jest.fn(),
+        skip: jest.fn(),
+        take: jest.fn(),
+        setParameters: jest.fn(),
+        getManyAndCount: jest.fn(),
       };
+      mockQb.where.mockReturnValue(mockQb);
+      mockQb.andWhere.mockImplementation((condition: string) => {
+        andWhereCalls.push(condition);
+        return mockQb;
+      });
+      mockQb.orderBy.mockReturnValue(mockQb);
+      mockQb.skip.mockReturnValue(mockQb);
+      mockQb.take.mockReturnValue(mockQb);
+      mockQb.setParameters.mockReturnValue(mockQb);
+      mockQb.getManyAndCount.mockResolvedValue([[], 0]);
 
       const mockRepository = {
         createQueryBuilder: jest.fn().mockReturnValue(mockQb),
@@ -79,10 +87,14 @@ describe('CampaignRepository', () => {
       });
 
       const repo = new CampaignRepository();
-      await repo.findAvailablePaginated(1, 10, { search: 'São Bernardo/SP', onlyActive: true });
+      await repo.findAvailablePaginated(1, 10, {
+        city: 'São Bernardo',
+        uf: 'SP',
+        onlyActive: true,
+      });
 
-      expect(andWhereCalls.some((c) => c.includes('searchRaw') && c.includes('='))).toBe(true);
-      expect(andWhereCalls.some((c) => c.includes('city_uf IS NOT NULL'))).toBe(true);
+      expect(andWhereCalls.some((c) => c.includes('cityRaw') && c.includes('='))).toBe(true);
+      expect(andWhereCalls.some((c) => c.includes('ufRaw') && c.includes('='))).toBe(true);
     });
   });
 
@@ -92,7 +104,8 @@ describe('CampaignRepository', () => {
         id: 'a1b2c3d4-e5f6-4a0b-8c1d-2e3f4a5b6c7d',
         name: 'Camp',
         exp_date: null,
-        city_uf: 'SP',
+        city: 'São Paulo',
+        uf: 'SP',
         enabled: true,
         created_at: new Date(),
         updated_at: new Date(),

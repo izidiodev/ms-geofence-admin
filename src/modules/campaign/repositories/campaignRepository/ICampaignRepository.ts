@@ -7,7 +7,7 @@ import {
   UpdateCampaignDTO,
 } from '@campaign/models/campaign.js';
 
-export type SearchInFilter = 'name' | 'city_uf' | 'both';
+export type SearchInFilter = 'name' | 'city' | 'both';
 
 export interface CampaignListFilters {
   search?: string;
@@ -17,8 +17,8 @@ export interface CampaignListFilters {
 }
 
 export interface AvailableCampaignFilters {
-  search?: string;
-  search_in?: SearchInFilter;
+  city?: string;
+  uf?: string;
   is_deleted?: boolean;
   enabled?: boolean;
   onlyActive?: boolean;

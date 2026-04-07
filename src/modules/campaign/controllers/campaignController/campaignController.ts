@@ -51,7 +51,7 @@ export class CampaignController {
       if (req.query.search !== undefined && req.query.search !== '') {
         filters.search = String(req.query.search).trim();
       }
-      if (req.query.search_in === 'name' || req.query.search_in === 'city_uf' || req.query.search_in === 'both') {
+      if (req.query.search_in === 'name' || req.query.search_in === 'city' || req.query.search_in === 'both') {
         filters.search_in = req.query.search_in;
       }
       if (req.query.is_deleted !== undefined) {
@@ -77,8 +77,8 @@ export class CampaignController {
       {
         page?: string;
         limit?: string;
-        search?: string;
-        search_in?: string;
+        city?: string;
+        uf?: string;
         is_deleted?: string;
         enabled?: string;
       }
@@ -87,12 +87,20 @@ export class CampaignController {
   ): Promise<void> => {
     try {
       const { page, limit } = this.parsePageLimit(req.query);
-      const filters: AvailableFilters = {};
-      if (req.query.search !== undefined && req.query.search !== '') {
-        filters.search = String(req.query.search).trim();
+      const locationErr = CampaignValidation.validateAvailableLocationQuery(
+        req.query.city,
+        req.query.uf
+      );
+      if (locationErr) {
+        ApiResponse.badRequest(res, locationErr);
+        return;
       }
-      if (req.query.search_in === 'name' || req.query.search_in === 'city_uf' || req.query.search_in === 'both') {
-        filters.search_in = req.query.search_in;
+      const filters: AvailableFilters = {};
+      const city = req.query.city !== undefined ? String(req.query.city).trim() : '';
+      const uf = req.query.uf !== undefined ? String(req.query.uf).trim() : '';
+      if (city.length > 0 && uf.length > 0) {
+        filters.city = city;
+        filters.uf = uf.toUpperCase();
       }
       if (req.query.is_deleted !== undefined) {
         if (req.query.is_deleted === 'true') filters.is_deleted = true;

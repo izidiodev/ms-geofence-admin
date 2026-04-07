@@ -19,7 +19,8 @@ const mockDetail: CampaignDetailResponse = {
   id: 'camp-id-123',
   name: 'Test Campaign',
   exp_date: null,
-  city_uf: 'SP',
+  city: 'São Paulo',
+  uf: 'SP',
   enabled: true,
   created_at: new Date(),
   updated_at: new Date(),
@@ -34,7 +35,8 @@ const mockSummary = {
   id: 'camp-id-123',
   name: 'Test Campaign',
   exp_date: null,
-  city_uf: 'SP',
+  city: 'São Paulo',
+  uf: 'SP',
   enabled: true,
   created_at: new Date(),
   updated_at: new Date(),
@@ -76,7 +78,7 @@ describe('CampaignController', () => {
 
   describe('findAll', () => {
     it('should call service.findAll and return success', async () => {
-      const req = { query: { page: '1', limit: '10' } } as Request;
+      const req = { query: { page: '1', limit: '10' } } as unknown as Request;
       mockService.findAll.mockResolvedValue({
         items: [mockSummary],
         total: 1,
@@ -94,9 +96,9 @@ describe('CampaignController', () => {
 
   describe('findAvailable', () => {
     it('should call service.findAvailable and return success', async () => {
-      const req = { query: {} } as Request;
+      const req = { query: {} } as unknown as Request;
       mockService.findAvailable.mockResolvedValue({
-        items: [mockSummary],
+        items: [mockDetail],
         total: 1,
         page: 1,
         limit: 10,
@@ -106,6 +108,34 @@ describe('CampaignController', () => {
       await controller.findAvailable(req, mockRes);
 
       expect(mockService.findAvailable).toHaveBeenCalledWith(1, 10, {});
+      expect(mockRes.status).toHaveBeenCalledWith(200);
+    });
+
+    it('should return 400 when only city query param is sent', async () => {
+      const req = { query: { city: 'Barreiras' } } as unknown as Request;
+
+      await controller.findAvailable(req, mockRes);
+
+      expect(mockService.findAvailable).not.toHaveBeenCalled();
+      expect(mockRes.status).toHaveBeenCalledWith(400);
+    });
+
+    it('should pass city and uf to service when both are present', async () => {
+      const req = { query: { city: 'Barreiras', uf: 'ba' } } as unknown as Request;
+      mockService.findAvailable.mockResolvedValue({
+        items: [],
+        total: 0,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      });
+
+      await controller.findAvailable(req, mockRes);
+
+      expect(mockService.findAvailable).toHaveBeenCalledWith(1, 10, {
+        city: 'Barreiras',
+        uf: 'BA',
+      });
       expect(mockRes.status).toHaveBeenCalledWith(200);
     });
   });
@@ -171,7 +201,13 @@ describe('CampaignController', () => {
     });
 
     it('should call service.create and return 201', async () => {
-      const body = { name: 'Nova Campanha', exp_date: '2026-12-31', city_uf: 'SP', enabled: true };
+      const body = {
+        name: 'Nova Campanha',
+        exp_date: '2026-12-31',
+        city: 'São Paulo',
+        uf: 'SP',
+        enabled: true,
+      };
       const req = { body } as Request;
       const created = { ...mockSummary, id: 'new-id', name: 'Nova Campanha' };
       mockService.create.mockResolvedValue(created);

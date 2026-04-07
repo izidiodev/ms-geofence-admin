@@ -6,7 +6,8 @@ const mockCampaign: Campaign = {
   id: 'camp-id-123',
   name: 'Test Campaign',
   exp_date: null,
-  city_uf: 'SP',
+  city: 'São Paulo',
+  uf: 'SP',
   enabled: true,
   created_at: new Date(),
   updated_at: new Date(),
@@ -40,6 +41,7 @@ function createMockRepository(): jest.Mocked<ICampaignRepository> {
     findTopByDeliveryCount: jest.fn(),
     findById: jest.fn(),
     findByIdWithItems: jest.fn(),
+    findItemsByCampaignIds: jest.fn(),
     createCampaign: jest.fn(),
     findTypeById: jest.fn(),
     findItemByCampaignAndTypeName: jest.fn(),
@@ -103,6 +105,7 @@ describe('CampaignService', () => {
         data: [{ ...mockCampaign, delivery_count: 100 }],
         total: 1,
       });
+      mockRepository.findItemsByCampaignIds.mockResolvedValue([]);
 
       const result = await service.findAvailable(1, 10);
 
@@ -165,11 +168,17 @@ describe('CampaignService', () => {
         name: 'Nova',
       });
 
-      const result = await service.create({ name: 'Nova' });
+      const payload = {
+        name: 'Nova',
+        exp_date: '2026-12-31',
+        city: 'São Paulo',
+        uf: 'SP',
+      };
+      const result = await service.create(payload);
 
       expect(result.id).toBe('new-id');
       expect(result.name).toBe('Nova');
-      expect(mockRepository.createCampaign).toHaveBeenCalledWith({ name: 'Nova' });
+      expect(mockRepository.createCampaign).toHaveBeenCalledWith(payload);
     });
   });
 

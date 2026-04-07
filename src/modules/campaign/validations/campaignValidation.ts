@@ -4,7 +4,8 @@ export class CampaignValidation {
   private static readonly NAME_MAX_LENGTH = 255;
   private static readonly TITLE_MAX_LENGTH = 255;
   private static readonly DESCRIPTION_MAX_LENGTH = 500;
-  private static readonly CITY_UF_MAX_LENGTH = 255;
+  private static readonly CITY_MAX_LENGTH = 255;
+  private static readonly UF_MAX_LENGTH = 10;
   private static readonly RADIUS_MIN = 1;
   private static readonly RADIUS_MAX = 100000;
   private static readonly LAT_MIN = -90;
@@ -15,7 +16,8 @@ export class CampaignValidation {
   static validateCreateBase(data: {
     name: string;
     exp_date?: string;
-    city_uf?: string;
+    city?: string;
+    uf?: string;
   }): string[] {
     const errors: string[] = [];
     if (!data.name || data.name.trim().length === 0) {
@@ -31,12 +33,29 @@ export class CampaignValidation {
         errors.push('Data de expiração deve ser uma data válida');
       }
     }
-    if (data.city_uf === undefined || data.city_uf === null || data.city_uf.trim().length === 0) {
-      errors.push('Cidade/UF é obrigatório');
-    } else if (data.city_uf.length > this.CITY_UF_MAX_LENGTH) {
-      errors.push(`Cidade/UF deve ter no máximo ${this.CITY_UF_MAX_LENGTH} caracteres`);
+    if (data.city === undefined || data.city === null || data.city.trim().length === 0) {
+      errors.push('Cidade é obrigatória');
+    } else if (data.city.length > this.CITY_MAX_LENGTH) {
+      errors.push(`Cidade deve ter no máximo ${this.CITY_MAX_LENGTH} caracteres`);
+    }
+    if (data.uf === undefined || data.uf === null || data.uf.trim().length === 0) {
+      errors.push('UF é obrigatória');
+    } else if (data.uf.trim().length > this.UF_MAX_LENGTH) {
+      errors.push(`UF deve ter no máximo ${this.UF_MAX_LENGTH} caracteres`);
     }
     return errors;
+  }
+
+  /** GET /campaigns/available: filtro geográfico exige city e uf juntos na query. */
+  static validateAvailableLocationQuery(cityRaw: unknown, ufRaw: unknown): string | null {
+    const city = cityRaw === undefined || cityRaw === null ? '' : String(cityRaw).trim();
+    const uf = ufRaw === undefined || ufRaw === null ? '' : String(ufRaw).trim();
+    const hasCity = city.length > 0;
+    const hasUf = uf.length > 0;
+    if (hasCity === hasUf) {
+      return null;
+    }
+    return 'Para filtrar por localização, informe os query params city e uf juntos';
   }
 
   static validateItemInput(
@@ -167,8 +186,19 @@ export class CampaignValidation {
         errors.push('Data de expiração deve ser uma data válida');
       }
     }
-    if (data.city_uf !== undefined && data.city_uf.length > this.CITY_UF_MAX_LENGTH) {
-      errors.push(`Cidade/UF deve ter no máximo ${this.CITY_UF_MAX_LENGTH} caracteres`);
+    if (data.city !== undefined) {
+      if (data.city.trim().length === 0) {
+        errors.push('Cidade não pode ser vazia');
+      } else if (data.city.length > this.CITY_MAX_LENGTH) {
+        errors.push(`Cidade deve ter no máximo ${this.CITY_MAX_LENGTH} caracteres`);
+      }
+    }
+    if (data.uf !== undefined) {
+      if (data.uf.trim().length === 0) {
+        errors.push('UF não pode ser vazia');
+      } else if (data.uf.length > this.UF_MAX_LENGTH) {
+        errors.push(`UF deve ter no máximo ${this.UF_MAX_LENGTH} caracteres`);
+      }
     }
     if (data.enter) {
       errors.push(...this.validateUpdateItemPartial(data.enter, 'Enter'));

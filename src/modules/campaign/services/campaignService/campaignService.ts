@@ -34,7 +34,8 @@ function toSummary(c: Campaign): CampaignSummaryResponse {
     id: c.id,
     name: c.name,
     exp_date: c.exp_date,
-    city_uf: c.city_uf,
+    city: c.city,
+    uf: c.uf,
     enabled: c.enabled,
     created_at: c.created_at,
     updated_at: c.updated_at,
@@ -84,8 +85,8 @@ export class CampaignService implements ICampaignService {
     filters?: AvailableFilters
   ): Promise<PaginatedAvailableCampaignsResult> {
     const { data, total } = await this.repository.findAvailablePaginated(page, limit, {
-      search: filters?.search,
-      search_in: filters?.search_in,
+      city: filters?.city,
+      uf: filters?.uf,
       is_deleted: filters?.is_deleted,
       enabled: filters?.enabled,
       onlyActive: true,

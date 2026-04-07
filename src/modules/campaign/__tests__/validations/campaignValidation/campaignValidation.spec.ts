@@ -16,7 +16,8 @@ describe('CampaignValidation', () => {
       const errors = CampaignValidation.validateCreateCampaign({
         name: '',
         exp_date: '2026-12-31',
-        city_uf: 'SP',
+        city: 'São Paulo',
+        uf: 'SP',
       });
       expect(errors).toContain('Nome é obrigatório');
     });
@@ -24,7 +25,8 @@ describe('CampaignValidation', () => {
     it('should return error when exp_date is missing', () => {
       const errors = CampaignValidation.validateCreateCampaign({
         name: 'Campanha',
-        city_uf: 'SP',
+        city: 'São Paulo',
+        uf: 'SP',
       });
       expect(errors).toContain('Data de expiração é obrigatória');
     });
@@ -33,24 +35,36 @@ describe('CampaignValidation', () => {
       const errors = CampaignValidation.validateCreateCampaign({
         name: 'Campanha',
         exp_date: 'not-a-date',
-        city_uf: 'SP',
+        city: 'São Paulo',
+        uf: 'SP',
       });
       expect(errors).toContain('Data de expiração deve ser uma data válida');
     });
 
-    it('should return error when city_uf is missing', () => {
+    it('should return error when city is missing', () => {
       const errors = CampaignValidation.validateCreateCampaign({
         name: 'Campanha',
         exp_date: '2026-12-31',
+        uf: 'SP',
       });
-      expect(errors).toContain('Cidade/UF é obrigatório');
+      expect(errors).toContain('Cidade é obrigatória');
+    });
+
+    it('should return error when uf is missing', () => {
+      const errors = CampaignValidation.validateCreateCampaign({
+        name: 'Campanha',
+        exp_date: '2026-12-31',
+        city: 'São Paulo',
+      });
+      expect(errors).toContain('UF é obrigatória');
     });
 
     it('should return error when enabled is not boolean', () => {
       const errors = CampaignValidation.validateCreateCampaign({
         name: 'Campanha',
         exp_date: '2026-12-31',
-        city_uf: 'SP',
+        city: 'São Paulo',
+        uf: 'SP',
         enabled: 'sim' as unknown as boolean,
       });
       expect(errors).toContain('enabled deve ser booleano');
@@ -60,7 +74,8 @@ describe('CampaignValidation', () => {
       const errors = CampaignValidation.validateCreateCampaign({
         name: 'Summer Campaign',
         exp_date: '2026-12-31',
-        city_uf: 'SP',
+        city: 'São Paulo',
+        uf: 'SP',
         enabled: true,
       });
       expect(errors).toHaveLength(0);
@@ -101,6 +116,22 @@ describe('CampaignValidation', () => {
         enabled: false,
       });
       expect(errors).toHaveLength(0);
+    });
+  });
+
+  describe('validateAvailableLocationQuery', () => {
+    it('should return null when both city and uf are absent or empty', () => {
+      expect(CampaignValidation.validateAvailableLocationQuery(undefined, undefined)).toBeNull();
+      expect(CampaignValidation.validateAvailableLocationQuery('', '')).toBeNull();
+    });
+
+    it('should return null when both city and uf are provided', () => {
+      expect(CampaignValidation.validateAvailableLocationQuery('Barreiras', 'BA')).toBeNull();
+    });
+
+    it('should return error when only one of city or uf is provided', () => {
+      expect(CampaignValidation.validateAvailableLocationQuery('Barreiras', undefined)).not.toBeNull();
+      expect(CampaignValidation.validateAvailableLocationQuery(undefined, 'BA')).not.toBeNull();
     });
   });
 

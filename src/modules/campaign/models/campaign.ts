@@ -3,7 +3,8 @@ export interface Campaign {
   id: string;
   name: string;
   exp_date: Date | null;
-  city_uf: string | null;
+  city: string;
+  uf: string;
   enabled: boolean;
   created_at: Date;
   updated_at: Date;
@@ -38,7 +39,8 @@ export interface ItemCampaignInput {
 export interface CreateCampaignDTO {
   name: string;
   exp_date?: string;
-  city_uf?: string;
+  city?: string;
+  uf?: string;
   enabled?: boolean;
 }
 
@@ -59,7 +61,8 @@ export interface CampaignSummaryResponse {
   id: string;
   name: string;
   exp_date: Date | null;
-  city_uf: string | null;
+  city: string;
+  uf: string;
   enabled: boolean;
   created_at: Date;
   updated_at: Date;
@@ -77,7 +80,8 @@ export interface CampaignDetailResponse extends CampaignSummaryResponse {
 export interface UpdateCampaignDTO {
   name?: string;
   exp_date?: string;
-  city_uf?: string;
+  city?: string;
+  uf?: string;
   enabled?: boolean;
   enter?: Partial<ItemCampaignInput>;
   dwell?: Partial<ItemCampaignInput>;

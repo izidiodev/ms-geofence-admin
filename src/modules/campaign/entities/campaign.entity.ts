@@ -21,8 +21,11 @@ export class CampaignEntity {
   @Column({ type: 'date', nullable: true })
   exp_date: Date | null;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  city_uf: string | null;
+  @Column({ type: 'varchar', length: 255 })
+  city: string;
+
+  @Column({ type: 'varchar', length: 10 })
+  uf: string;
 
   @Column({ type: 'boolean', default: true })
   enabled: boolean;

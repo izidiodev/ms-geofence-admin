@@ -65,7 +65,7 @@ yarn test:coverage
 | GET | /api/campaigns/delivery-stats | JWT | Top 10 campanhas por delivery_count (id, name, delivery_count) |
 | GET | /api/campaigns/available | **Não** | Campanhas ativas para o app (público) |
 | GET | /api/campaigns/:id | JWT | Campanha + itens (enter/dwell/exit; null se ainda não cadastrados) |
-| POST | /api/campaigns | JWT | Criar campanha (só cabeçalho: name, exp_date, city_uf, enabled) |
+| POST | /api/campaigns | JWT | Criar campanha (só cabeçalho: name, exp_date, city, uf, enabled) |
 | POST | /api/campaigns/:id/items | JWT | Adicionar um item (enter, dwell ou exit via type_id) |
 | PUT | /api/campaigns/:id | JWT | Atualizar campanha e/ou itens existentes (parcial) |
 | DELETE | /api/campaigns/:id | JWT | Soft delete |
@@ -74,16 +74,17 @@ Respostas: sucesso `{ success: true, data?, message? }`; erro `{ success: false,
 
 ## Modelo de campanhas
 
-- **`campaigns`**: dados da campanha — `name`, `exp_date`, `city_uf`, `enabled`, `is_deleted`, timestamps.
+- **`campaigns`**: dados da campanha — `name`, `exp_date`, `city`, `uf`, `enabled`, `is_deleted`, timestamps.
 - **`item_campaign`**: entrada / permanência / saída — `title`, `description`, `type_id` (enter/dwell/exit), `lat`, `long`, `radius`, FK `campaign_id`.
 
-**1) POST /api/campaigns** — criar campanha (`name`, `exp_date` e `city_uf` obrigatórios):
+**1) POST /api/campaigns** — criar campanha (`name`, `exp_date`, `city` e `uf` obrigatórios):
 
 ```json
 {
   "name": "Campanha Verão",
   "exp_date": "2026-12-31",
-  "city_uf": "São Paulo/SP",
+  "city": "São Paulo",
+  "uf": "SP",
   "enabled": true
 }
 ```
@@ -107,4 +108,6 @@ Listagens retornam só o resumo; **GET /api/campaigns/:id** retorna `enter`, `dw
 
 **Contador `delivery_count`:** em cada resposta de **GET /api/campaigns/available**, o contador da campanha é incrementado no banco (uma vez por campanha retornada na página). O JSON já traz o valor **após** o incremento. Use **GET /api/campaigns** (admin) ou **GET /api/campaigns/:id** para ver o total acumulado no painel.
 
-**`search` em `/available`:** filtra por **`city_uf` com igualdade exata** (após normalizar: trim, minúsculas, sem acento). O app deve enviar o **mesmo texto** cadastrado em `city_uf` (ex.: `São Paulo/SP` ≠ `São Bernardo do Campo/SP`), para não misturar geofences entre cidades. Sem `search`, retorna campanhas ativas de todas as cidades (paginado).
+**Filtro geográfico em `/available`:** query **`city`** e **`uf` juntos** (ex.: `?city=Barreiras&uf=BA`). A comparação é **igualdade exata** em cidade e UF (após normalizar: trim, minúsculas, sem acento na cidade; a UF na query é enviada em maiúsculas). Assim cidades homônimas em UFs diferentes não se misturam. Sem `city` e `uf`, retorna campanhas ativas de todos os locais (paginado). Informar só um dos dois retorna **400**.
+
+**Listagem admin (`GET /api/campaigns`):** `search_in=city` pesquisa em `city`; `both` inclui também `name` e `uf`.

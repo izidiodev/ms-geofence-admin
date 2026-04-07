@@ -9,6 +9,7 @@ import { AddUnaccentExtension1739000000003 } from './migrations/1739000000003-Ad
 import { AddCampaignGroupIdToCampaigns1739000000004 } from './migrations/1739000000004-AddCampaignGroupIdToCampaigns.js';
 import { CampaignsAndItemCampaign1739000000005 } from './migrations/1739000000005-CampaignsAndItemCampaign.js';
 import { AddDeliveryCountToCampaigns1739000000006 } from './migrations/1739000000006-AddDeliveryCountToCampaigns.js';
+import { SplitCampaignCityUf1739000000007 } from './migrations/1739000000007-SplitCampaignCityUf.js';
 
 export const typeormMigrations = [
   CreateUsersTable1739000000000,
@@ -18,4 +19,5 @@ export const typeormMigrations = [
   AddCampaignGroupIdToCampaigns1739000000004,
   CampaignsAndItemCampaign1739000000005,
   AddDeliveryCountToCampaigns1739000000006,
+  SplitCampaignCityUf1739000000007,
 ];

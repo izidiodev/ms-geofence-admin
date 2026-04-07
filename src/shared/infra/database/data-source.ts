@@ -7,7 +7,9 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 
 const options: DataSourceOptions = {
   type: 'postgres',
-  url: process.env.DB_URL || 'localhost',
+  url:
+    process.env.DB_URL ??
+    'postgresql://postgres:postgres@localhost:5432/ms_geofence_admin',
   ssl: isProduction ? { rejectUnauthorized: false } : false,
   synchronize: false,
   logging: isDevelopment,
