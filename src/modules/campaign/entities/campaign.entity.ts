@@ -27,6 +27,12 @@ export class CampaignEntity {
   @Column({ type: 'varchar', length: 10 })
   uf: string;
 
+  @Column({ type: 'decimal', precision: 10, scale: 7 })
+  lat: string;
+
+  @Column({ type: 'decimal', precision: 10, scale: 7 })
+  long: string;
+
   @Column({ type: 'boolean', default: true })
   enabled: boolean;
 
@@ -64,12 +70,6 @@ export class ItemCampaignEntity {
   @ManyToOne(() => TypeEntity)
   @JoinColumn({ name: 'type_id' })
   type?: TypeEntity;
-
-  @Column({ type: 'decimal', precision: 10, scale: 7 })
-  lat: string;
-
-  @Column({ type: 'decimal', precision: 10, scale: 7 })
-  long: string;
 
   @Column({ type: 'integer' })
   radius: number;

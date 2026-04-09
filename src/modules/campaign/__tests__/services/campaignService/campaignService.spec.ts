@@ -8,6 +8,8 @@ const mockCampaign: Campaign = {
   exp_date: null,
   city: 'São Paulo',
   uf: 'SP',
+  lat: '-23.55',
+  long: '-46.63',
   enabled: true,
   created_at: new Date(),
   updated_at: new Date(),
@@ -24,8 +26,6 @@ function item(
     title: `Title ${typeName}`,
     description: null,
     type_id: typeId,
-    lat: '-23.55',
-    long: '-46.63',
     radius: 500,
     campaign_id: mockCampaign.id,
     created_at: new Date(),
@@ -173,6 +173,8 @@ describe('CampaignService', () => {
         exp_date: '2026-12-31',
         city: 'São Paulo',
         uf: 'SP',
+        lat: -23.55,
+        long: -46.63,
       };
       const result = await service.create(payload);
 
@@ -186,8 +188,6 @@ describe('CampaignService', () => {
     const input = {
       title: 'Entrada',
       type_id: 'a1b2c3d4-e5f6-4a0b-8c1d-2e3f4a5b6c7d',
-      lat: -23.55,
-      long: -46.63,
       radius: 500,
     };
 
@@ -200,8 +200,6 @@ describe('CampaignService', () => {
         title: 'Entrada',
         description: null,
         type_id: input.type_id,
-        lat: '-23.55',
-        long: '-46.63',
         radius: 500,
         campaign_id: mockCampaign.id,
         created_at: new Date(),
@@ -248,8 +246,6 @@ describe('CampaignService', () => {
         title: 'Old',
         description: null,
         type_id: input.type_id,
-        lat: '0',
-        long: '0',
         radius: 100,
         campaign_id: mockCampaign.id,
         created_at: new Date(),

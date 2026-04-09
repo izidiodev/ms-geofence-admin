@@ -106,6 +106,8 @@ describe('CampaignRepository', () => {
         exp_date: null,
         city: 'São Paulo',
         uf: 'SP',
+        lat: '-23.55',
+        long: '-46.63',
         enabled: true,
         created_at: new Date(),
         updated_at: new Date(),

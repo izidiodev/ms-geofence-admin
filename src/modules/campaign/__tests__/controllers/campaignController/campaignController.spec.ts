@@ -8,8 +8,6 @@ const item = {
   title: 'T',
   description: null as string | null,
   type_id: 'a1b2c3d4-e5f6-4a0b-8c1d-2e3f4a5b6c7d',
-  lat: '-23.55',
-  long: '-46.63',
   radius: 500,
   created_at: new Date(),
   updated_at: new Date(),
@@ -21,6 +19,8 @@ const mockDetail: CampaignDetailResponse = {
   exp_date: null,
   city: 'São Paulo',
   uf: 'SP',
+  lat: '-23.55',
+  long: '-46.63',
   enabled: true,
   created_at: new Date(),
   updated_at: new Date(),
@@ -37,6 +37,8 @@ const mockSummary = {
   exp_date: null,
   city: 'São Paulo',
   uf: 'SP',
+  lat: '-23.55',
+  long: '-46.63',
   enabled: true,
   created_at: new Date(),
   updated_at: new Date(),
@@ -206,6 +208,8 @@ describe('CampaignController', () => {
         exp_date: '2026-12-31',
         city: 'São Paulo',
         uf: 'SP',
+        lat: -23.55,
+        long: -46.63,
         enabled: true,
       };
       const req = { body } as Request;
@@ -230,7 +234,7 @@ describe('CampaignController', () => {
     it('should return 400 when campaign id invalid', async () => {
       const req = {
         params: { id: 'bad' },
-        body: { title: 'E', type_id: 'a1b2c3d4-e5f6-4a0b-8c1d-2e3f4a5b6c7d', lat: -23, long: -46, radius: 100 },
+        body: { title: 'E', type_id: 'a1b2c3d4-e5f6-4a0b-8c1d-2e3f4a5b6c7d', radius: 100 },
       } as Request<{ id: string }>;
 
       await controller.addItem(req, mockRes);
@@ -242,7 +246,7 @@ describe('CampaignController', () => {
     it('should return 400 when item validation fails', async () => {
       const req = {
         params: { id: 'a1b2c3d4-e5f6-4a0b-8c1d-2e3f4a5b6c7d' },
-        body: { title: '', type_id: 'a1b2c3d4-e5f6-4a0b-8c1d-2e3f4a5b6c7d', lat: -23, long: -46, radius: 100 },
+        body: { title: '', type_id: 'a1b2c3d4-e5f6-4a0b-8c1d-2e3f4a5b6c7d', radius: 100 },
       } as Request<{ id: string }>;
 
       await controller.addItem(req, mockRes);
@@ -256,12 +260,10 @@ describe('CampaignController', () => {
       const body = {
         title: 'Entrada',
         type_id: 'b2c3d4e5-f6a7-5b1c-9d2e-3f4a5b6c7d8e',
-        lat: -23.55,
-        long: -46.63,
         radius: 500,
       };
       const req = { params: { id: campaignId }, body } as Request<{ id: string }>;
-      mockService.addCampaignItem.mockResolvedValue({ ...item, ...body, lat: '-23.55', long: '-46.63' });
+      mockService.addCampaignItem.mockResolvedValue({ ...item, ...body });
 
       await controller.addItem(req, mockRes);
 

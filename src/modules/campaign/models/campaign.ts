@@ -5,11 +5,13 @@ export interface Campaign {
   exp_date: Date | null;
   city: string;
   uf: string;
+  lat: string;
+  long: string;
   enabled: boolean;
   created_at: Date;
   updated_at: Date;
   is_deleted: boolean;
-  /** Vezes que a campanha foi retornada no endpoint público /available */
+  /** Vezes que a campanha foi retornada no endpoint público GET /campaigns/available */
   delivery_count: number;
 }
 
@@ -18,29 +20,28 @@ export interface ItemCampaign {
   title: string;
   description: string | null;
   type_id: string;
-  lat: string;
-  long: string;
   radius: number;
   campaign_id: string;
   created_at: Date;
   updated_at: Date;
 }
 
+/** Body POST /campaigns/:id/items — coordenadas ficam no cabeçalho da campanha */
 export interface ItemCampaignInput {
   title: string;
   description?: string;
   type_id: string;
-  lat: number;
-  long: number;
   radius: number;
 }
 
-/** Body POST: apenas dados da campanha (itens em POST /campaigns/:id/items) */
+/** Body POST: cabeçalho da campanha (itens em POST /campaigns/:id/items) */
 export interface CreateCampaignDTO {
   name: string;
   exp_date?: string;
   city?: string;
   uf?: string;
+  lat?: number;
+  long?: number;
   enabled?: boolean;
 }
 
@@ -49,8 +50,6 @@ export interface ItemCampaignResponse {
   title: string;
   description: string | null;
   type_id: string;
-  lat: string;
-  long: string;
   radius: number;
   created_at: Date;
   updated_at: Date;
@@ -63,6 +62,8 @@ export interface CampaignSummaryResponse {
   exp_date: Date | null;
   city: string;
   uf: string;
+  lat: string;
+  long: string;
   enabled: boolean;
   created_at: Date;
   updated_at: Date;
@@ -82,6 +83,8 @@ export interface UpdateCampaignDTO {
   exp_date?: string;
   city?: string;
   uf?: string;
+  lat?: number;
+  long?: number;
   enabled?: boolean;
   enter?: Partial<ItemCampaignInput>;
   dwell?: Partial<ItemCampaignInput>;

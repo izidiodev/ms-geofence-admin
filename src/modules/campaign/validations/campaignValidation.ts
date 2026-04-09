@@ -18,6 +18,8 @@ export class CampaignValidation {
     exp_date?: string;
     city?: string;
     uf?: string;
+    lat?: number;
+    long?: number;
   }): string[] {
     const errors: string[] = [];
     if (!data.name || data.name.trim().length === 0) {
@@ -42,6 +44,38 @@ export class CampaignValidation {
       errors.push('UF é obrigatória');
     } else if (data.uf.trim().length > this.UF_MAX_LENGTH) {
       errors.push(`UF deve ter no máximo ${this.UF_MAX_LENGTH} caracteres`);
+    }
+    errors.push(...this.validateLatLongPair(data.lat, data.long, ''));
+    return errors;
+  }
+
+  /** lat/long do cabeçalho da campanha (obrigatórios no create; prefix vazio = mensagens sem prefixo). */
+  private static validateLatLongPair(
+    lat: unknown,
+    long: unknown,
+    prefix: string
+  ): string[] {
+    const errors: string[] = [];
+    const p = prefix ? `${prefix}: ` : '';
+    if (lat === undefined || lat === null) {
+      errors.push(`${p}lat é obrigatório`);
+    } else if (Number.isNaN(Number(lat))) {
+      errors.push(`${p}lat deve ser um número`);
+    } else {
+      const n = Number(lat);
+      if (n < this.LAT_MIN || n > this.LAT_MAX) {
+        errors.push(`${p}latitude deve estar entre ${this.LAT_MIN} e ${this.LAT_MAX}`);
+      }
+    }
+    if (long === undefined || long === null) {
+      errors.push(`${p}long é obrigatório`);
+    } else if (Number.isNaN(Number(long))) {
+      errors.push(`${p}long deve ser um número`);
+    } else {
+      const n = Number(long);
+      if (n < this.LONG_MIN || n > this.LONG_MAX) {
+        errors.push(`${p}longitude deve estar entre ${this.LONG_MIN} e ${this.LONG_MAX}`);
+      }
     }
     return errors;
   }
@@ -75,26 +109,6 @@ export class CampaignValidation {
       errors.push(`${prefix}: type_id é obrigatório`);
     } else if (!this.isValidUUID(data.type_id)) {
       errors.push(`${prefix}: type_id deve ser um UUID válido`);
-    }
-    if (data.lat === undefined || data.lat === null) {
-      errors.push(`${prefix}: lat é obrigatório`);
-    } else if (Number.isNaN(Number(data.lat))) {
-      errors.push(`${prefix}: lat deve ser um número`);
-    } else {
-      const lat = Number(data.lat);
-      if (lat < this.LAT_MIN || lat > this.LAT_MAX) {
-        errors.push(`${prefix}: latitude deve estar entre ${this.LAT_MIN} e ${this.LAT_MAX}`);
-      }
-    }
-    if (data.long === undefined || data.long === null) {
-      errors.push(`${prefix}: long é obrigatório`);
-    } else if (Number.isNaN(Number(data.long))) {
-      errors.push(`${prefix}: long deve ser um número`);
-    } else {
-      const long = Number(data.long);
-      if (long < this.LONG_MIN || long > this.LONG_MAX) {
-        errors.push(`${prefix}: longitude deve estar entre ${this.LONG_MIN} e ${this.LONG_MAX}`);
-      }
     }
     if (data.radius === undefined || data.radius === null) {
       errors.push(`${prefix}: radius é obrigatório`);
@@ -140,26 +154,6 @@ export class CampaignValidation {
     if (data.type_id !== undefined && !this.isValidUUID(data.type_id)) {
       errors.push(`${prefix}: type_id deve ser um UUID válido`);
     }
-    if (data.lat !== undefined) {
-      if (Number.isNaN(Number(data.lat))) {
-        errors.push(`${prefix}: lat deve ser um número`);
-      } else {
-        const lat = Number(data.lat);
-        if (lat < this.LAT_MIN || lat > this.LAT_MAX) {
-          errors.push(`${prefix}: latitude deve estar entre ${this.LAT_MIN} e ${this.LAT_MAX}`);
-        }
-      }
-    }
-    if (data.long !== undefined) {
-      if (Number.isNaN(Number(data.long))) {
-        errors.push(`${prefix}: long deve ser um número`);
-      } else {
-        const long = Number(data.long);
-        if (long < this.LONG_MIN || long > this.LONG_MAX) {
-          errors.push(`${prefix}: longitude deve estar entre ${this.LONG_MIN} e ${this.LONG_MAX}`);
-        }
-      }
-    }
     if (data.radius !== undefined) {
       const r = Number(data.radius);
       if (!Number.isInteger(r) || r < this.RADIUS_MIN || r > this.RADIUS_MAX) {
@@ -198,6 +192,26 @@ export class CampaignValidation {
         errors.push('UF não pode ser vazia');
       } else if (data.uf.length > this.UF_MAX_LENGTH) {
         errors.push(`UF deve ter no máximo ${this.UF_MAX_LENGTH} caracteres`);
+      }
+    }
+    if (data.lat !== undefined) {
+      if (Number.isNaN(Number(data.lat))) {
+        errors.push('lat deve ser um número');
+      } else {
+        const n = Number(data.lat);
+        if (n < this.LAT_MIN || n > this.LAT_MAX) {
+          errors.push(`latitude deve estar entre ${this.LAT_MIN} e ${this.LAT_MAX}`);
+        }
+      }
+    }
+    if (data.long !== undefined) {
+      if (Number.isNaN(Number(data.long))) {
+        errors.push('long deve ser um número');
+      } else {
+        const n = Number(data.long);
+        if (n < this.LONG_MIN || n > this.LONG_MAX) {
+          errors.push(`longitude deve estar entre ${this.LONG_MIN} e ${this.LONG_MAX}`);
+        }
       }
     }
     if (data.enter) {
