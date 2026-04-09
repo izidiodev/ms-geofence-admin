@@ -20,6 +20,7 @@ export class CampaignValidation {
     uf?: string;
     lat?: number;
     long?: number;
+    radius?: number;
   }): string[] {
     const errors: string[] = [];
     if (!data.name || data.name.trim().length === 0) {
@@ -46,6 +47,16 @@ export class CampaignValidation {
       errors.push(`UF deve ter no máximo ${this.UF_MAX_LENGTH} caracteres`);
     }
     errors.push(...this.validateLatLongPair(data.lat, data.long, ''));
+    if (data.radius === undefined || data.radius === null) {
+      errors.push('radius é obrigatório');
+    } else {
+      const r = Number(data.radius);
+      if (!Number.isInteger(r) || r < this.RADIUS_MIN || r > this.RADIUS_MAX) {
+        errors.push(
+          `radius deve ser um número inteiro entre ${this.RADIUS_MIN} e ${this.RADIUS_MAX}`
+        );
+      }
+    }
     return errors;
   }
 
@@ -110,16 +121,6 @@ export class CampaignValidation {
     } else if (!this.isValidUUID(data.type_id)) {
       errors.push(`${prefix}: type_id deve ser um UUID válido`);
     }
-    if (data.radius === undefined || data.radius === null) {
-      errors.push(`${prefix}: radius é obrigatório`);
-    } else {
-      const r = Number(data.radius);
-      if (!Number.isInteger(r) || r < this.RADIUS_MIN || r > this.RADIUS_MAX) {
-        errors.push(
-          `${prefix}: radius deve ser um número inteiro entre ${this.RADIUS_MIN} e ${this.RADIUS_MAX}`
-        );
-      }
-    }
     return errors;
   }
 
@@ -153,14 +154,6 @@ export class CampaignValidation {
     }
     if (data.type_id !== undefined && !this.isValidUUID(data.type_id)) {
       errors.push(`${prefix}: type_id deve ser um UUID válido`);
-    }
-    if (data.radius !== undefined) {
-      const r = Number(data.radius);
-      if (!Number.isInteger(r) || r < this.RADIUS_MIN || r > this.RADIUS_MAX) {
-        errors.push(
-          `${prefix}: radius deve ser um número inteiro entre ${this.RADIUS_MIN} e ${this.RADIUS_MAX}`
-        );
-      }
     }
     return errors;
   }
@@ -212,6 +205,14 @@ export class CampaignValidation {
         if (n < this.LONG_MIN || n > this.LONG_MAX) {
           errors.push(`longitude deve estar entre ${this.LONG_MIN} e ${this.LONG_MAX}`);
         }
+      }
+    }
+    if (data.radius !== undefined) {
+      const r = Number(data.radius);
+      if (!Number.isInteger(r) || r < this.RADIUS_MIN || r > this.RADIUS_MAX) {
+        errors.push(
+          `radius deve ser um número inteiro entre ${this.RADIUS_MIN} e ${this.RADIUS_MAX}`
+        );
       }
     }
     if (data.enter) {

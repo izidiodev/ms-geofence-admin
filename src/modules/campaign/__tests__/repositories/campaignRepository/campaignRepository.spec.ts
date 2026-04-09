@@ -108,6 +108,7 @@ describe('CampaignRepository', () => {
         uf: 'SP',
         lat: '-23.55',
         long: '-46.63',
+        radius: 500,
         enabled: true,
         created_at: new Date(),
         updated_at: new Date(),

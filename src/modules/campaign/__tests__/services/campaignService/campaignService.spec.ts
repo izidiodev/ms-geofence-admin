@@ -10,6 +10,7 @@ const mockCampaign: Campaign = {
   uf: 'SP',
   lat: '-23.55',
   long: '-46.63',
+  radius: 500,
   enabled: true,
   created_at: new Date(),
   updated_at: new Date(),
@@ -26,7 +27,6 @@ function item(
     title: `Title ${typeName}`,
     description: null,
     type_id: typeId,
-    radius: 500,
     campaign_id: mockCampaign.id,
     created_at: new Date(),
     updated_at: new Date(),
@@ -175,6 +175,7 @@ describe('CampaignService', () => {
         uf: 'SP',
         lat: -23.55,
         long: -46.63,
+        radius: 500,
       };
       const result = await service.create(payload);
 
@@ -188,7 +189,6 @@ describe('CampaignService', () => {
     const input = {
       title: 'Entrada',
       type_id: 'a1b2c3d4-e5f6-4a0b-8c1d-2e3f4a5b6c7d',
-      radius: 500,
     };
 
     it('should add item when campaign and type exist', async () => {
@@ -200,7 +200,6 @@ describe('CampaignService', () => {
         title: 'Entrada',
         description: null,
         type_id: input.type_id,
-        radius: 500,
         campaign_id: mockCampaign.id,
         created_at: new Date(),
         updated_at: new Date(),
@@ -246,7 +245,6 @@ describe('CampaignService', () => {
         title: 'Old',
         description: null,
         type_id: input.type_id,
-        radius: 100,
         campaign_id: mockCampaign.id,
         created_at: new Date(),
         updated_at: new Date(),

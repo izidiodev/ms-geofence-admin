@@ -74,10 +74,10 @@ Respostas: sucesso `{ success: true, data?, message? }`; erro `{ success: false,
 
 ## Modelo de campanhas
 
-- **`campaigns`**: dados da campanha — `name`, `exp_date`, `city`, `uf`, **`lat`**, **`long`** (centro único da geofence), `enabled`, `is_deleted`, `delivery_count`, timestamps.
-- **`item_campaign`**: entrada / permanência / saída — `title`, `description`, `type_id` (enter/dwell/exit), **`radius`** (raio específico do evento), FK `campaign_id`. Coordenadas ficam só no cabeçalho da campanha.
+- **`campaigns`**: dados da campanha — `name`, `exp_date`, `city`, `uf`, **`lat`**, **`long`**, **`radius`** (uma geofence circular por campanha), `enabled`, `is_deleted`, `delivery_count`, timestamps.
+- **`item_campaign`**: entrada / permanência / saída — `title`, `description`, `type_id` (enter/dwell/exit), FK `campaign_id`. **Sem** `lat`, `long` nem `radius`; a geofence é só no cabeçalho.
 
-**1) POST /api/campaigns** — criar campanha (`name`, `exp_date`, `city`, `uf`, `lat` e `long` obrigatórios):
+**1) POST /api/campaigns** — criar campanha (`name`, `exp_date`, `city`, `uf`, `lat`, `long` e **`radius`** obrigatórios; `radius` inteiro em metros, entre 1 e 100000):
 
 ```json
 {
@@ -87,18 +87,18 @@ Respostas: sucesso `{ success: true, data?, message? }`; erro `{ success: false,
   "uf": "SP",
   "lat": -23.55,
   "long": -46.63,
+  "radius": 500,
   "enabled": true
 }
 ```
 
-**2) POST /api/campaigns/:id/items** — cadastrar conteúdo por tipo (uma requisição por `type_id` enter/dwell/exit do seed). **Sem** `lat`/`long` no body; o centro vem do cabeçalho da campanha.
+**2) POST /api/campaigns/:id/items** — cadastrar conteúdo por tipo (uma requisição por `type_id` enter/dwell/exit do seed). Body só texto/tipo; **sem** `lat`, `long` nem `radius`.
 
 ```json
 {
   "title": "Entrada",
   "description": "opcional",
-  "type_id": "<uuid enter>",
-  "radius": 500
+  "type_id": "<uuid enter>"
 }
 ```
 

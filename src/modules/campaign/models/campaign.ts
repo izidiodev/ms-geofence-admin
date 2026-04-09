@@ -7,6 +7,7 @@ export interface Campaign {
   uf: string;
   lat: string;
   long: string;
+  radius: number;
   enabled: boolean;
   created_at: Date;
   updated_at: Date;
@@ -20,18 +21,16 @@ export interface ItemCampaign {
   title: string;
   description: string | null;
   type_id: string;
-  radius: number;
   campaign_id: string;
   created_at: Date;
   updated_at: Date;
 }
 
-/** Body POST /campaigns/:id/items — coordenadas ficam no cabeçalho da campanha */
+/** Body POST /campaigns/:id/items — geofence (lat/long/radius) no cabeçalho da campanha */
 export interface ItemCampaignInput {
   title: string;
   description?: string;
   type_id: string;
-  radius: number;
 }
 
 /** Body POST: cabeçalho da campanha (itens em POST /campaigns/:id/items) */
@@ -42,6 +41,7 @@ export interface CreateCampaignDTO {
   uf?: string;
   lat?: number;
   long?: number;
+  radius?: number;
   enabled?: boolean;
 }
 
@@ -50,7 +50,6 @@ export interface ItemCampaignResponse {
   title: string;
   description: string | null;
   type_id: string;
-  radius: number;
   created_at: Date;
   updated_at: Date;
 }
@@ -64,6 +63,7 @@ export interface CampaignSummaryResponse {
   uf: string;
   lat: string;
   long: string;
+  radius: number;
   enabled: boolean;
   created_at: Date;
   updated_at: Date;
@@ -85,6 +85,7 @@ export interface UpdateCampaignDTO {
   uf?: string;
   lat?: number;
   long?: number;
+  radius?: number;
   enabled?: boolean;
   enter?: Partial<ItemCampaignInput>;
   dwell?: Partial<ItemCampaignInput>;

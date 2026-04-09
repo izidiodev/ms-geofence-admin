@@ -35,6 +35,7 @@ function toCampaign(e: CampaignEntity, deliveryCountOverride?: number): Campaign
     uf: e.uf,
     lat: e.lat,
     long: e.long,
+    radius: e.radius,
     enabled: e.enabled,
     created_at: e.created_at,
     updated_at: e.updated_at,
@@ -52,7 +53,6 @@ function toItem(
     title: e.title,
     description: e.description,
     type_id: e.type_id,
-    radius: e.radius,
     campaign_id: e.campaign_id,
     created_at: e.created_at,
     updated_at: e.updated_at,
@@ -249,6 +249,7 @@ export class CampaignRepository implements ICampaignRepository {
       uf,
       lat: String(data.lat),
       long: String(data.long),
+      radius: data.radius!,
       enabled: data.enabled ?? true,
       is_deleted: false,
       delivery_count: 0,
@@ -279,7 +280,6 @@ export class CampaignRepository implements ICampaignRepository {
       title: row.title,
       description: row.description,
       type_id: row.type_id,
-      radius: row.radius,
       campaign_id: row.campaign_id,
       created_at: row.created_at,
       updated_at: row.updated_at,
@@ -293,7 +293,6 @@ export class CampaignRepository implements ICampaignRepository {
       title: input.title.trim(),
       description: input.description?.trim() ?? null,
       type_id: input.type_id,
-      radius: input.radius,
       campaign_id: campaignId,
     });
     const e = await this.itemRepository.findOneBy({ id: itemId });
@@ -303,7 +302,6 @@ export class CampaignRepository implements ICampaignRepository {
       title: e.title,
       description: e.description,
       type_id: e.type_id,
-      radius: e.radius,
       campaign_id: e.campaign_id,
       created_at: e.created_at,
       updated_at: e.updated_at,
@@ -323,6 +321,7 @@ export class CampaignRepository implements ICampaignRepository {
     if (data.uf !== undefined) campUpdate.uf = data.uf.trim().toUpperCase();
     if (data.lat !== undefined) campUpdate.lat = String(data.lat);
     if (data.long !== undefined) campUpdate.long = String(data.long);
+    if (data.radius !== undefined) campUpdate.radius = data.radius;
     if (data.enabled !== undefined) campUpdate.enabled = data.enabled;
     if (Object.keys(campUpdate).length > 0) {
       await this.repository.update(id, campUpdate);
@@ -349,7 +348,6 @@ export class CampaignRepository implements ICampaignRepository {
       if (partial.title !== undefined) u.title = partial.title.trim();
       if (partial.description !== undefined) u.description = partial.description?.trim() ?? null;
       if (partial.type_id !== undefined) u.type_id = partial.type_id;
-      if (partial.radius !== undefined) u.radius = partial.radius;
       if (Object.keys(u).length > 0) {
         await this.itemRepository.update(item.id, u);
       }

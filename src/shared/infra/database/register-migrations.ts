@@ -11,6 +11,7 @@ import { CampaignsAndItemCampaign1739000000005 } from './migrations/173900000000
 import { AddDeliveryCountToCampaigns1739000000006 } from './migrations/1739000000006-AddDeliveryCountToCampaigns.js';
 import { SplitCampaignCityUf1739000000007 } from './migrations/1739000000007-SplitCampaignCityUf.js';
 import { CampaignLatLongAndItemDropLatLong1739000000008 } from './migrations/1739000000008-CampaignLatLongAndItemDropLatLong.js';
+import { CampaignRadiusDropItemRadius1739000000009 } from './migrations/1739000000009-CampaignRadiusDropItemRadius.js';
 
 export const typeormMigrations = [
   CreateUsersTable1739000000000,
@@ -22,4 +23,5 @@ export const typeormMigrations = [
   AddDeliveryCountToCampaigns1739000000006,
   SplitCampaignCityUf1739000000007,
   CampaignLatLongAndItemDropLatLong1739000000008,
+  CampaignRadiusDropItemRadius1739000000009,
 ];

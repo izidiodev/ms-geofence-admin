@@ -33,6 +33,9 @@ export class CampaignEntity {
   @Column({ type: 'decimal', precision: 10, scale: 7 })
   long: string;
 
+  @Column({ type: 'integer' })
+  radius: number;
+
   @Column({ type: 'boolean', default: true })
   enabled: boolean;
 
@@ -70,9 +73,6 @@ export class ItemCampaignEntity {
   @ManyToOne(() => TypeEntity)
   @JoinColumn({ name: 'type_id' })
   type?: TypeEntity;
-
-  @Column({ type: 'integer' })
-  radius: number;
 
   @Column({ type: 'uuid' })
   campaign_id: string;

@@ -21,7 +21,6 @@ function toItemResponse(i: ItemCampaign): ItemCampaignResponse {
     title: i.title,
     description: i.description,
     type_id: i.type_id,
-    radius: i.radius,
     created_at: i.created_at,
     updated_at: i.updated_at,
   };
@@ -36,6 +35,7 @@ function toSummary(c: Campaign): CampaignSummaryResponse {
     uf: c.uf,
     lat: c.lat,
     long: c.long,
+    radius: c.radius,
     enabled: c.enabled,
     created_at: c.created_at,
     updated_at: c.updated_at,

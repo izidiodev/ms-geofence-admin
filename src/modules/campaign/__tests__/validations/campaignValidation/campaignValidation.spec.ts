@@ -5,7 +5,6 @@ const validTypeId = 'a1b2c3d4-e5f6-4a0b-8c1d-2e3f4a5b6c7d';
 const validItem = {
   title: 'Título',
   type_id: validTypeId,
-  radius: 500,
 };
 
 describe('CampaignValidation', () => {
@@ -18,6 +17,7 @@ describe('CampaignValidation', () => {
         uf: 'SP',
         lat: -23.55,
         long: -46.63,
+        radius: 500,
       });
       expect(errors).toContain('Nome é obrigatório');
     });
@@ -29,6 +29,7 @@ describe('CampaignValidation', () => {
         uf: 'SP',
         lat: -23.55,
         long: -46.63,
+        radius: 500,
       });
       expect(errors).toContain('Data de expiração é obrigatória');
     });
@@ -41,6 +42,7 @@ describe('CampaignValidation', () => {
         uf: 'SP',
         lat: -23.55,
         long: -46.63,
+        radius: 500,
       });
       expect(errors).toContain('Data de expiração deve ser uma data válida');
     });
@@ -52,6 +54,7 @@ describe('CampaignValidation', () => {
         uf: 'SP',
         lat: -23.55,
         long: -46.63,
+        radius: 500,
       });
       expect(errors).toContain('Cidade é obrigatória');
     });
@@ -63,8 +66,21 @@ describe('CampaignValidation', () => {
         city: 'São Paulo',
         lat: -23.55,
         long: -46.63,
+        radius: 500,
       });
       expect(errors).toContain('UF é obrigatória');
+    });
+
+    it('should return error when radius is missing', () => {
+      const errors = CampaignValidation.validateCreateCampaign({
+        name: 'Campanha',
+        exp_date: '2026-12-31',
+        city: 'São Paulo',
+        uf: 'SP',
+        lat: -23.55,
+        long: -46.63,
+      });
+      expect(errors).toContain('radius é obrigatório');
     });
 
     it('should return error when enabled is not boolean', () => {
@@ -75,6 +91,7 @@ describe('CampaignValidation', () => {
         uf: 'SP',
         lat: -23.55,
         long: -46.63,
+        radius: 500,
         enabled: 'sim' as unknown as boolean,
       });
       expect(errors).toContain('enabled deve ser booleano');
@@ -88,6 +105,7 @@ describe('CampaignValidation', () => {
         uf: 'SP',
         lat: -23.55,
         long: -46.63,
+        radius: 500,
         enabled: true,
       });
       expect(errors).toHaveLength(0);
